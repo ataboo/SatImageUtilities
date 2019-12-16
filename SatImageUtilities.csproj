@@ -9,10 +9,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="$(NugetPackageRoot)google.protobuf.tools\3.11.2\tools\windows_x64\protoc.exe ProtoFootprintCollection.proto -I=$(ProjectDir)Tile\Proto --csharp_out=$(ProjectDir)Tile\Proto" />
-  </Target>
-
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.11.2" />
     <PackageReference Include="Google.Protobuf.Tools" Version="3.11.2" />

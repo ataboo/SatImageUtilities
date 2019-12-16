@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Build solution and generate NuGet package
-      run: dotnet pack -c Release -o out
+      run: dotnet pack -c Release -o nupkgs
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
@@ -23,4 +23,4 @@ jobs:
       run: nuget sources add -name "GPR" -Source https://nuget.pkg.github.com/ataboo/index.json -Username ataboo -Password ${{secrets.GITHUB_TOKEN}}
     
     - name: Push NuGet package to GitHub
-      run: nuget push .\out\*.nupkg -Source "GPS" -SkipDuplicate
+      run: nuget push .\nupkgs\*.nupkg -Source "GPR" -SkipDuplicate
