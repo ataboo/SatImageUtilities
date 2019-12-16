@@ -14,7 +14,7 @@ jobs:
       uses: actions/checkout@master
 
     - name: Build solution and generate NuGet package
-      run: dotnet pack -c Release -o nupkgs
+      run: dotnet build -c Release -o nupkgs
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
