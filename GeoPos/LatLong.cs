@@ -90,5 +90,15 @@ namespace SatImageUtilities.GeoPos
         /// ex. N12W123
         /// </summary>
         public string WholeNLatELong => $"{LatCardinal}{Math.Abs((int)LatDeg).ToString("D2")}{LongCardinal}{Math.Abs((int)LongDeg).ToString("D3")}";
+
+        public override bool Equals(object obj)
+        {
+            return obj is LatLong other && _latRads == other._latRads && _longRads == other._longRads; 
+        }
+
+        public override int GetHashCode()
+        {
+            return WholeNLatELong.GetHashCode();
+        }
     }
 }
