@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace SatImageUtilities.GeoPos
 {
@@ -47,9 +48,10 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// Latitude in Degress.
         /// </summary>
+        [JsonIgnore]
         public double LatDeg
         {
-            get => _latRads * 180d / Math.PI;
+            get => Math.Round(_latRads * 180d / Math.PI, 8);
             set
             {
                 LatRads = value * Math.PI / 180d;
@@ -59,9 +61,10 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// Longitude in Degress.
         /// </summary>
+        [JsonIgnore]
         public double LongDeg
         {
-            get => _longRads * 180d / Math.PI;
+            get => Math.Round(_longRads * 180d / Math.PI, 8);
             set
             {
                 LongRads = value * Math.PI / 180d;
@@ -71,11 +74,13 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// Cardinal direction of latitude. (N or S)
         /// </summary>
+        [JsonIgnore]
         public string LatCardinal => (LatDeg < 0 ? "S" : "N");
 
         /// <summary>
         /// Cardinal direction of longitude. (E of W)
         /// </summary>
+        [JsonIgnore]
         public string LongCardinal => (LongDeg < 0 ? "W" : "E");
 
         public LatLong() { }
@@ -89,6 +94,15 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// ex. N12W123
         /// </summary>
+        [JsonIgnore]
         public string WholeNLatELong => $"{LatCardinal}{Math.Abs((int)LatDeg).ToString("D2")}{LongCardinal}{Math.Abs((int)LongDeg).ToString("D3")}";
+
+        public override bool Equals(object other) {
+            return other is LatLong otherLL && _latRads == otherLL._latRads && _longRads == otherLL._longRads;
+        }
+
+        public override int GetHashCode() {
+            return $"{_latRads}{_longRads}".GetHashCode();
+        }
     }
 }
