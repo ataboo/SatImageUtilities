@@ -97,8 +97,9 @@ namespace SatImageUtilities.GeoPos
         [JsonIgnore]
         public string WholeNLatELong => $"{LatCardinal}{Math.Abs((int)LatDeg).ToString("D2")}{LongCardinal}{Math.Abs((int)LongDeg).ToString("D3")}";
 
-        public override bool Equals(object other) {
-            return other is LatLong otherLL && _latRads == otherLL._latRads && _longRads == otherLL._longRads;
+        public override bool Equals(object obj)
+        {
+            return obj is LatLong other && _latRads == other._latRads && _longRads == other._longRads; 
         }
 
         public override int GetHashCode() {

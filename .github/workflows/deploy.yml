@@ -17,7 +17,7 @@ jobs:
       run: dotnet test SatImageUtilities.Tests
 
     - name: Build solution and generate NuGet package
-      run: dotnet build SatImageUtilities  -c Release -o nupkgs
+      run: dotnet build SatImageUtilities -c Release -o nupkgs
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
