@@ -13,6 +13,7 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// Latitude in Radians.
         /// </summary>
+        [JsonProperty("lat")]
         public double LatRads {
             get => _latRads;
             set
@@ -31,6 +32,7 @@ namespace SatImageUtilities.GeoPos
         /// <summary>
         /// Longitude in Radians.
         /// </summary>
+        [JsonProperty("long")]
         public double LongRads
         {
             get => _longRads;

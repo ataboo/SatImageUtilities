@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using SatImageUtilities.GeoPos;
 using Newtonsoft.Json;
-using System;
 
 namespace SatImageUtilities.Tests
 {

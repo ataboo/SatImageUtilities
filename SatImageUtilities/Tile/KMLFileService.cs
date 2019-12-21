@@ -1,7 +1,4 @@
-﻿using Google.Protobuf;
-using SatImageUtilities.Extensions;
-using SatImageUtilities.GeoPos;
-using Sentinal2Utilities.Tile.Proto;
+﻿using SatImageUtilities.GeoPos;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,24 +10,6 @@ namespace SatImageUtilities.Tile
 {
     public class KMLFileService : IKMLFileService
     {
-        S2ATileFootprintCollection IKMLFileService.LoadFromProto(string binFilePath)
-        {
-            using (var file = File.OpenRead(binFilePath))
-            {
-                return ProtoFootprintCollection.Parser.ParseFrom(file).ToS2ACollection();
-            }
-        }
-
-        public void SaveToProto(string binFilePath, S2ATileFootprintCollection collection)
-        {
-            var proto = collection.ToProtoCollection();
-
-            using (var file = File.Create(binFilePath))
-            {
-                proto.WriteTo(file);
-            }
-        }
-
         public async Task<S2ATileFootprintCollection> LoadFromKMLFile(string kmlFilePath)
         {
             var settings = new XmlReaderSettings
