@@ -49,7 +49,7 @@ namespace SatImageUtilities.Tile
                 return new S2ATileFootprint
                 {
                     TilePosition = new S2ATilePosition(t.name),
-                    Points = ParseLinearRingCoordinates(t.rawCoords),
+                    Points = new System.Collections.ObjectModel.ReadOnlyCollection<LatLong>(ParseLinearRingCoordinates(t.rawCoords).ToList()),
                 };
             })));
 
