@@ -41,7 +41,7 @@ namespace SatImageUtilities.Tile
         }
 
         private (double westRads, double eastRads) GetLongitudeBounds() {
-            var normLongitudes = Points.Select(p => (p.LongRads + Math.PI * 2) % (Math.PI * 2));
+            var normLongitudes = Points.Select(p => (p.LongRads + 360) % 360);
             
             var min = double.MaxValue;
             var max = double.MinValue;
@@ -53,7 +53,7 @@ namespace SatImageUtilities.Tile
             min = min > Math.PI ? min-Math.PI * 2 : min;
             max = max > Math.PI ? max-Math.PI * 2 : max;
             
-            return min > max ? (max, min) : (min, max);
+            return (Math.Abs(max - min) > Math.PI) ? (max, min) : (min, max);
         }
 
         public bool ContainsPoint(LatLong point) {
