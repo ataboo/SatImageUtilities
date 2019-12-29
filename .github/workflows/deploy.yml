@@ -23,6 +23,7 @@ jobs:
       uses: ataboo/csproj-tag-action@using-js-instead 
       with: 
         token: ${{secrets.GITHUB_TOKEN}}
+        csprojfile: SatImageUtilities/SatImageUtilities.csproj 
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
