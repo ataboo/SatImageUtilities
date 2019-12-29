@@ -21,6 +21,8 @@ jobs:
 
     - name: Tag commit
       uses: ataboo/csproj-tag-action@using-js-instead 
+      with: 
+        token: ${{secrets.GITHUB_TOKEN}}
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
