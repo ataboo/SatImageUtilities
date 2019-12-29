@@ -1,5 +1,5 @@
+# Build, test, tag, package and publish a nuget package.
 name: Deploy Nuget
-
 on: 
   push:
     branches:
