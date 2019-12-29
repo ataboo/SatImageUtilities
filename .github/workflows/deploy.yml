@@ -20,7 +20,7 @@ jobs:
       run: dotnet build SatImageUtilities -c Release -o nupkgs
 
     - name: Tag commit
-      uses: ataboo/csproj-tag-action@master
+      uses: ataboo/csproj-tag-action@using-js-instead 
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
