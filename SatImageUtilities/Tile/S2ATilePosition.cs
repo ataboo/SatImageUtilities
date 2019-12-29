@@ -3,15 +3,26 @@ using Newtonsoft.Json;
 
 namespace SatImageUtilities.Tile
 { 
-    [Serializable]
+    /// <summary>
+    /// The grid for a Sentinel 2 Tile.  Similar to MGRS.
+    /// </summary>
     public class S2ATilePosition
     {
+        /// <summary>
+        /// Latitude Zone, letter from A-Z excluding I and O. (South to North).
+        /// </summary>
         [JsonProperty("lat")]
         public string LatZone { get; set; }
 
+        /// <summary>
+        /// Longitude Zone, int from 1-60. (~180W to ~180E)
+        /// </summary>
         [JsonProperty("long")]
         public int LongZone { get; set; }
 
+        /// <summary>
+        /// Two letter Sub-grid
+        /// </summary>
         [JsonProperty("digraph")]
         public string Digraph { get; set; }
 

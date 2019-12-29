@@ -9,7 +9,7 @@ namespace SatImageUtilities.GeoPos
         private const double PoleRadius = 6356752;
 
         /// <summary>
-        /// Get Earth's sea level at a position.
+        /// Get Earth's sea level at a coordinate (latitude).
         /// </summary>
         public static double SeaLevelAtLatLong(LatLong latLong)
         {

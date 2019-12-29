@@ -20,7 +20,7 @@ namespace SatImageUtilities.GeoPos
             {
                 if (value < -Math.PI / 2 || value > Math.PI / 2)
                 {
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException($"LatRads must be between {-Math.PI/2} and {Math.PI/2}: {value}");
                 }
 
                 _latRads = value;
@@ -40,7 +40,7 @@ namespace SatImageUtilities.GeoPos
             {
                 if (value < -Math.PI || value > Math.PI)
                 {
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException($"LongRads must be between {-Math.PI} and {Math.PI}: {value}");
                 }
 
                 _longRads = value;
@@ -98,6 +98,10 @@ namespace SatImageUtilities.GeoPos
         /// </summary>
         [JsonIgnore]
         public string WholeNLatELong => $"{LatCardinal}{Math.Abs((int)LatDeg).ToString("D2")}{LongCardinal}{Math.Abs((int)LongDeg).ToString("D3")}";
+
+        public override string ToString() {
+            return $"({Math.Abs(LatDeg).ToString("F8")}°{LatCardinal}, {Math.Abs(LongDeg).ToString("F8")}°{LongCardinal})";
+        }
 
         public override bool Equals(object obj)
         {

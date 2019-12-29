@@ -1,3 +1,5 @@
+name: NUnit Tests
+
 on: 
   push:
     branches-ignore:
