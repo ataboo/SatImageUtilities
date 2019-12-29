@@ -20,7 +20,7 @@ jobs:
       run: dotnet build SatImageUtilities -c Release -o nupkgs
 
     - name: Tag commit
-      uses: ataboo/csproj-tag-action@using-js-instead 
+      uses: ataboo/csproj-tag-action@master 
       with: 
         token: ${{secrets.GITHUB_TOKEN}}
         csprojfile: SatImageUtilities/SatImageUtilities.csproj 
