@@ -19,7 +19,7 @@ namespace SatImageUtilities.Tile
             };
 
 
-            var rawTiles = new List<(string name, string[] rawCoords)>();
+            var rawTiles = new List<(string name, string rawCenter, string[] rawCoords)>();
             using (var kmlMem = new MemoryStream())
             {
                 using (var kmlFile = File.OpenRead(kmlFilePath))
@@ -49,7 +49,8 @@ namespace SatImageUtilities.Tile
                 return new S2ATileFootprint
                 {
                     TilePosition = new S2ATilePosition(t.name),
-                    Points = new System.Collections.ObjectModel.ReadOnlyCollection<LatLong>(ParseLinearRingCoordinates(t.rawCoords).ToList()),
+                    Center = ParseCoordinate(t.rawCenter),
+                    Points = new System.Collections.ObjectModel.ReadOnlyCollection<LatLong>(t.rawCoords.Select(c => ParseCoordinate(c)).OfType<LatLong>().ToList()),
                 };
             })));
 
@@ -61,54 +62,60 @@ namespace SatImageUtilities.Tile
             };
         }
 
-        private async Task<(string name, string[] rawCoords)> ParsePlacemark(XmlReader reader)
+        private async Task<(string name, string rawCenter, string[] rawCoords)> ParsePlacemark(XmlReader reader)
         {
             var rawCoords = new List<string>();
+            string centerPointRaw = null;
             string name = null;
 
-            while (true)
-            {
-                await reader.ReadAsync();
-                
-                switch(reader.NodeType)
-                {
-                    case XmlNodeType.Element:
-                        switch(reader.LocalName)
-                        {
-                            case "name":
-                                await reader.ReadAsync();
-                                name = reader.Value;
-                                break;
-                            case "coordinates":
-                                await reader.ReadAsync();
-                                var coordString = reader.Value;
-                                rawCoords.AddRange(coordString.Trim().Split(' '));
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-
-                    case XmlNodeType.EndElement:
-                        if (reader.LocalName == "Placemark")
-                        {
-                            return (name, rawCoords.ToArray());
-                        }
-                        break;
-                    default:
-                        break;
+            await reader.ReadToNodeEnd("Placemark", async (r) => {
+                if (r.NodeType == XmlNodeType.Element) {
+                    switch(reader.LocalName)
+                    {
+                        case "name":
+                            await reader.ReadAsync();
+                            name = reader.Value;
+                            break;
+                        case "LinearRing":
+                            rawCoords.AddRange(await ReadCoordinates(reader));
+                            break;
+                        case "Point":
+                            centerPointRaw = (await ReadCoordinates(reader))[0];
+                            break;
+                        default:
+                            break;
+                    }
                 }
+            });
+
+            if (centerPointRaw == null) {
+                Console.WriteLine("but why?");
             }
 
-            throw new Exception("Failed to reach end of placemark.");
+            return (name, centerPointRaw, rawCoords.ToArray());
         }
 
-        private LatLong[] ParseLinearRingCoordinates(string[] coordinateStrings)
-        {
-            return coordinateStrings.Select(s => {
-                var split = s.Split(',');
-                return new LatLong(double.Parse(split[1]), double.Parse(split[0]));
-            }).ToArray();
+        private async Task<string[]> ReadCoordinates(XmlReader reader) {
+            string coordinateLine = "";
+            
+            await reader.ReadToNodeEnd("coordinates", async (r) => {
+                if (r.NodeType == XmlNodeType.Element && r.LocalName == "coordinates") {
+                    await r.ReadAsync();
+                    coordinateLine = r.Value;
+                    return;
+                }
+            });
+
+            return coordinateLine.Split(' ');
+        }
+
+        private LatLong ParseCoordinate(string rawCoordinate) {
+            var splitCoord = rawCoordinate.Split(',');
+            if (splitCoord.Length != 3) {
+                return null;
+            }
+
+            return new LatLong(double.Parse(splitCoord[1]), double.Parse(splitCoord[0]));
         }
     }
 }

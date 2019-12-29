@@ -4,15 +4,24 @@ namespace SatImageUtilities.MSI
 {
     public class MSIImage
     {
+        /// <summary>
+        /// Tile position corresponding to this image. 
+        /// </summary>
         public S2ATilePosition TilePosition { get; set; }
 
-        // Blue
+        /// <summary>
+        /// Blue MSI band.
+        /// </summary>
         public MSIBand Band2 { get; set; }
 
-        // Green
+        /// <summary>
+        /// Green MSI band.
+        /// </summary>
         public MSIBand Band3 { get; set; }
 
-        // Red
+        /// <summary>
+        /// Red MSI band.
+        /// </summary>
         public MSIBand Band4 { get; set; }
     }
 }

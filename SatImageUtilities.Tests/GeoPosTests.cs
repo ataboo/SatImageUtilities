@@ -4,11 +4,41 @@ using Newtonsoft.Json;
 using SatImageUtilities.Tile;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.IO;
+using System.Threading.Tasks;
+using System;
 
 namespace SatImageUtilities.Tests
 {
     public class GeoPosTests
     {
+        [Test]
+        [Ignore("Just and example of parsing an S2 KML")]
+        public async Task WriteKmlToJson() {
+            var service = new KMLFileService();
+
+            var footprints = await service.LoadFromKMLFile("s2_footprints.kml");
+
+            using var writer = File.CreateText("s2_footprints.json");
+            writer.Write(JsonConvert.SerializeObject(footprints));
+        }
+
+        [Test]
+        public void KMLMessingAround() {
+            var collection = JsonConvert.DeserializeObject<S2ATileFootprintCollection>(File.ReadAllText("/home/ataboo/Downloads/s2_footprints.json"));
+
+            var lats = collection.Footprints.Select(f => f.Key.LatZone).Distinct();
+            var longs = collection.Footprints.Select(f => f.Key.LongZone).Distinct();
+
+            var one = collection.Footprints.First(f => f.Key.LongZone == 1);
+            var two = collection.Footprints.First(f => f.Key.LongZone == 2);
+            var fiftyNine = collection.Footprints.First(f => f.Key.LongZone == 59);
+            var sixty = collection.Footprints.First(f => f.Key.LongZone == 60);
+
+            Console.WriteLine("blah!");
+        }
+
+
         [Test]
         public void TestSerialization()
         {
@@ -45,10 +75,10 @@ namespace SatImageUtilities.Tests
                 Points = new ReadOnlyCollection<LatLong>(new LatLong[]{
                     new LatLong(-5, 5),
                     new LatLong(5, 5),
-                    new LatLong(0, 0),
                     new LatLong(5, -5),
                     new LatLong(-5, -5)
-                }.ToList())
+                }.ToList()),
+                Center = new LatLong(0, 0)
             };
 
             var (ne, sw) = footprint.Bounds;
@@ -63,6 +93,7 @@ namespace SatImageUtilities.Tests
                 new LatLong(20, 20),
                 new LatLong(20, 30)
             }.ToList());
+            footprint.Center = new LatLong(25, 25);
 
             (ne, sw) = footprint.Bounds;
 
@@ -71,6 +102,7 @@ namespace SatImageUtilities.Tests
             Assert.IsFalse(footprint.SpansIDL);
 
             footprint.Points = new ReadOnlyCollection<LatLong>(new []{new LatLong(5, 179), new LatLong(5, 0), new LatLong(-5, 179), new LatLong(-5, 0)}.ToList());
+            footprint.Center = new LatLong(0, 179.5);
 
             (ne, sw) = footprint.Bounds;
             
@@ -92,13 +124,15 @@ namespace SatImageUtilities.Tests
                     new LatLong(5, 180),
                     new LatLong(-5, 180),
                     new LatLong(-5, 175),
-                }.ToList())
+                }.ToList()),
+                Center = new LatLong(0, 180)
             };
 
             var (ne, sw) = footprint.Bounds;
 
-            ne.AssertEqual(new LatLong(5, 175));
-            sw.AssertEqual(new LatLong(-5, -175));
+            // Look at the IDL if this is confusing.
+            ne.AssertEqual(new LatLong(5, -175));
+            sw.AssertEqual(new LatLong(-5, 175));
             Assert.IsTrue(footprint.SpansIDL);
 
             footprint.Points = new ReadOnlyCollection<LatLong>(new LatLong[] {
@@ -107,13 +141,87 @@ namespace SatImageUtilities.Tests
                 new LatLong(-5, 91),
                 new LatLong(-5, -91)
             }.ToList());
+            footprint.Center = new LatLong(0, -180);
 
             (ne, sw) = footprint.Bounds;
 
-            ne.AssertEqual(new LatLong(5, 91));
-            sw.AssertEqual(new LatLong(-5, -91));
+            ne.AssertEqual(new LatLong(5, -91));
+            sw.AssertEqual(new LatLong(-5, 91));
             Assert.IsTrue(footprint.SpansIDL);
         }
 
+        // Center of footprint
+        [TestCase(0, 0, true)]
+        // On corners of footprint
+        [TestCase(-10, -10, true)]
+        [TestCase(-10, 10, true)]
+        [TestCase(10, -10, true)]
+        [TestCase(10, 10, true)]
+        // Outside of footprint
+        [TestCase(10.001, 0, false)]
+        [TestCase(-10.001, 0, false)]
+        [TestCase(0,10.001, false)]
+        [TestCase(0, -10.001, false)]
+        [TestCase(10.001, 10.001, false)]
+        [TestCase(10.001, -10.001, false)]
+        [TestCase(-10.001, -10.001, false)]
+        [TestCase(-10.001, 10.001, false)]
+        public void TestPointInsideBoundsSpanningZero(double latDeg, double longDeg, bool expectedInside) {
+            var point = new LatLong(latDeg, longDeg);
+            
+            var footprint = new S2ATileFootprint {
+                Center = new LatLong(0, 0)
+            };
+            footprint.SetPoints(new LatLong(-10, -10), new LatLong(-10, 10), new LatLong(10, 10), new LatLong(10, -10));
+
+            Assert.AreEqual(expectedInside, footprint.ContainsPoint(point));
+        }
+
+        // Center of footprint
+        [TestCase(30, 180, true)]
+        [TestCase(30, -180, true)]
+        // On Corners of footprint
+        [TestCase(40, 170, true)]
+        [TestCase(40, -170, true)]
+        [TestCase(20, 170, true)]
+        [TestCase(20, -170, true)]
+        // Outside footprint
+        [TestCase(40.001, 180, false)]
+        [TestCase(19.999, -180, false)]
+        [TestCase(30,169.999, false)]
+        [TestCase(30, -169.999, false)]
+        public void TestPointInsideBoundsSpanningIDL(double latDeg, double longDeg, bool expectedInside) {
+            var point = new LatLong(latDeg, longDeg);
+            
+            var footprint = new S2ATileFootprint {
+                Center = new LatLong(30, 180),
+            };
+            footprint.SetPoints(new LatLong(40, 170), new LatLong(20, 170), new LatLong(20, -170), new LatLong(40, -170));
+
+            Assert.AreEqual(expectedInside, footprint.ContainsPoint(point));
+        }
+
+        // Center of footprint
+        [TestCase(-30, 90, true)]
+        // On Corners of footprint
+        [TestCase(-40, 80, true)]
+        [TestCase(-40, 100, true)]
+        [TestCase(-20, 80, true)]
+        [TestCase(-20, 100, true)]
+        // Outside footprint
+        [TestCase(-40.001, 90, false)]
+        [TestCase(-19.999, 90, false)]
+        [TestCase(-30,79.999, false)]
+        [TestCase(-30, 100.001, false)]
+        public void TestPointNotSpanning(double latDeg, double longDeg, bool expectedInside) {
+            var point = new LatLong(latDeg, longDeg);
+            
+            var footprint = new S2ATileFootprint {
+                Center = new LatLong(-30, 90)
+            };
+            footprint.SetPoints(new LatLong(-20, 80), new LatLong(-40, 80), new LatLong(-40, 100), new LatLong(-20, 100));
+
+            Assert.AreEqual(expectedInside, footprint.ContainsPoint(point));
+        }
     }
 }
