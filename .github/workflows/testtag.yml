@@ -1,4 +1,4 @@
-name: NUnit Tests
+name: Testing Versioning
 
 on: 
   push:
@@ -8,11 +8,12 @@ on:
 jobs:
   build_and_test:
     runs-on: windows-latest
-    name: NUnit Test
+    name: Try to echo version
     steps:
     - name: Checkout repository
       uses: actions/checkout@master
     - name: Build Project
       run: dotnet build SatImageUtilities.Tests
-    - name: Run NUnit Tests
-      run: dotnet test SatImageUtilities.Tests
+    - name: Echo Version
+      run: echo [Version] $xml.Project.PropertyGroup.Version
+    
