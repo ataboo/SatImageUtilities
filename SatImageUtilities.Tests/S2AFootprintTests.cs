@@ -1,17 +1,14 @@
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using SatImageUtilities.GeoPos;
-using Newtonsoft.Json;
 using SatImageUtilities.Tile;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.IO;
-using System.Threading.Tasks;
-using System;
 
-namespace SatImageUtilities.Tests
-{
-    public class GeoPosTests
-    {
+namespace SatImageUtilities.Tests {
+    public class S2AFootprintTests {
         [Test]
         [Ignore("Just and example of parsing an S2 KML")]
         public async Task WriteKmlToJson() {
@@ -22,22 +19,6 @@ namespace SatImageUtilities.Tests
             using var writer = File.CreateText("s2_footprints.json");
             writer.Write(JsonConvert.SerializeObject(footprints));
         }
-
-        [Test]
-        public void KMLMessingAround() {
-            var collection = JsonConvert.DeserializeObject<S2ATileFootprintCollection>(File.ReadAllText("/home/ataboo/Downloads/s2_footprints.json"));
-
-            var lats = collection.Footprints.Select(f => f.Key.LatZone).Distinct();
-            var longs = collection.Footprints.Select(f => f.Key.LongZone).Distinct();
-
-            var one = collection.Footprints.First(f => f.Key.LongZone == 1);
-            var two = collection.Footprints.First(f => f.Key.LongZone == 2);
-            var fiftyNine = collection.Footprints.First(f => f.Key.LongZone == 59);
-            var sixty = collection.Footprints.First(f => f.Key.LongZone == 60);
-
-            Console.WriteLine("blah!");
-        }
-
 
         [Test]
         public void TestSerialization()
