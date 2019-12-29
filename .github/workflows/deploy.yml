@@ -19,6 +19,9 @@ jobs:
     - name: Build solution and generate NuGet package
       run: dotnet build SatImageUtilities -c Release -o nupkgs
 
+    - name: Tag commit
+      uses: ataboo/csproj-tag-action@master
+
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
 
